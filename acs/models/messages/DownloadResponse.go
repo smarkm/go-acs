@@ -3,8 +3,6 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jteeuwen/go-pkg-xmlx"
-	"strconv"
 	"time"
 )
 
@@ -65,17 +63,17 @@ func (msg *DownloadResponse) CreateXML() []byte {
 }
 
 //Parse decode into struct
-func (msg *DownloadResponse) Parse(doc *xmlx.Document) {
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
-	statusNode := doc.SelectNode("*", "Status")
-	if statusNode != nil {
-		var err error
-		msg.Status, err = strconv.Atoi(statusNode.GetValue())
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-		}
-	}
+func (msg *DownloadResponse) Parse(doc *string) {
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
+	// statusNode := doc.SelectNode("*", "Status")
+	// if statusNode != nil {
+	// 	var err error
+	// 	msg.Status, err = strconv.Atoi(statusNode.GetValue())
+	// 	if err != nil {
+	// 		fmt.Printf("error: %v\n", err)
+	// 	}
+	// }
 
-	msg.StartTime = doc.SelectNode("*", "StartTime").GetValue()
-	msg.CompleteTime = doc.SelectNode("*", "CompleteTime").GetValue()
+	// msg.StartTime = doc.SelectNode("*", "StartTime").GetValue()
+	// msg.CompleteTime = doc.SelectNode("*", "CompleteTime").GetValue()
 }

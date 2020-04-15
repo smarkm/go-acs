@@ -3,8 +3,6 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jteeuwen/go-pkg-xmlx"
-	"strconv"
 	"time"
 )
 
@@ -62,21 +60,21 @@ func (msg *SetParameterValuesResponse) CreateXML() []byte {
 }
 
 //Parse decode from xml
-func (msg *SetParameterValuesResponse) Parse(doc *xmlx.Document) {
+func (msg *SetParameterValuesResponse) Parse(doc *string) {
 
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
 
-	statusNode := doc.SelectNode("*", "Status")
-	if statusNode != nil {
-		var err error
-		msg.Status, err = strconv.Atoi(statusNode.GetValue())
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-		}
-	}
+	// statusNode := doc.SelectNode("*", "Status")
+	// if statusNode != nil {
+	// 	var err error
+	// 	msg.Status, err = strconv.Atoi(statusNode.GetValue())
+	// 	if err != nil {
+	// 		fmt.Printf("error: %v\n", err)
+	// 	}
+	// }
 
-	paramsNode := doc.SelectNode("*", "ParameterKey")
-	if paramsNode != nil {
-		msg.ParameterKey = paramsNode.GetValue()
-	}
+	// paramsNode := doc.SelectNode("*", "ParameterKey")
+	// if paramsNode != nil {
+	// 	msg.ParameterKey = paramsNode.GetValue()
+	// }
 }

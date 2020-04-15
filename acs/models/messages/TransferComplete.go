@@ -3,8 +3,6 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jteeuwen/go-pkg-xmlx"
-	"strconv"
 	"time"
 )
 
@@ -80,16 +78,16 @@ func (msg *TransferComplete) CreateXML() []byte {
 }
 
 //Parse decode from xml
-func (msg *TransferComplete) Parse(doc *xmlx.Document) {
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
-	msg.CommandKey = doc.SelectNode("*", "CommandKey").GetValue()
-	msg.CompleteTime = doc.SelectNode("*", "CompleteTime").GetValue()
-	msg.StartTime = doc.SelectNode("*", "StartTime").GetValue()
-	msg.FaultString = doc.SelectNode("*", "FaultString").GetValue()
-	faultCode, err := strconv.Atoi(doc.SelectNode("*", "FaultCode").GetValue())
-	if err != nil {
-		fmt.Printf("falutCode error %v\n", err)
-	}
-	msg.FaultCode = faultCode
+func (msg *TransferComplete) Parse(doc *string) {
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
+	// msg.CommandKey = doc.SelectNode("*", "CommandKey").GetValue()
+	// msg.CompleteTime = doc.SelectNode("*", "CompleteTime").GetValue()
+	// msg.StartTime = doc.SelectNode("*", "StartTime").GetValue()
+	// msg.FaultString = doc.SelectNode("*", "FaultString").GetValue()
+	// faultCode, err := strconv.Atoi(doc.SelectNode("*", "FaultCode").GetValue())
+	// if err != nil {
+	// 	fmt.Printf("falutCode error %v\n", err)
+	// }
+	// msg.FaultCode = faultCode
 
 }

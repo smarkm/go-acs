@@ -2,7 +2,6 @@ package messages
 
 import (
 	"encoding/xml"
-	"github.com/jteeuwen/go-pkg-xmlx"
 )
 
 const (
@@ -40,7 +39,7 @@ const (
 
 //Message tr069 msg interface
 type Message interface {
-	Parse(doc *xmlx.Document)
+	Parse(doc *string)
 	CreateXML() []byte
 	GetName() string
 	GetID() string
@@ -48,14 +47,27 @@ type Message interface {
 
 //Envelope tr069 body
 type Envelope struct {
-	XMLName   xml.Name    `xml:"SOAP-ENV:Envelope"`
-	XmlnsEnv  string      `xml:"xmlns:SOAP-ENV,attr"`
+	XMLName   xml.Name    `xml:"soap_env:Envelope"`
+	XmlnsEnv  string      `xml:"xmlns:soap_env,attr"`
 	XmlnsEnc  string      `xml:"xmlns:SOAP-ENC,attr"`
 	XmlnsXsd  string      `xml:"xmlns:xsd,attr"`
 	XmlnsXsi  string      `xml:"xmlns:xsi,attr"`
 	XmlnsCwmp string      `xml:"xmlns:cwmp,attr"`
-	Header    interface{} `xml:"SOAP-ENV:Header"`
+	Header    interface{} `xml:"soap_env:Header"`
 	Body      interface{} `xml:"SOAP-ENV:Body"`
+}
+type EnvelopeU struct {
+	XMLName   xml.Name      `xml:"Envelope"`
+	XmlnsEnv  string        `xml:"soap_env,attr"`
+	XmlnsEnc  string        `xml:"SOAP-ENC,attr"`
+	XmlnsXsd  string        `xml:"xsd,attr"`
+	XmlnsXsi  string        `xml:"xsi,attr"`
+	XmlnsCwmp string        `xml:"cwmp,attr"`
+	Header    HeaderStructU `xml:"Header"`
+	Body      BodyU         `xml:"Body"`
+}
+type BodyU struct {
+	Data string `xml:",innerxml"`
 }
 
 //HeaderStruct tr069 header
@@ -63,10 +75,18 @@ type HeaderStruct struct {
 	ID     IDStruct    `xml:"cwmp:ID"`
 	NoMore interface{} `xml:"cwmp:NoMoreRequests,ommitempty"`
 }
+type HeaderStructU struct {
+	ID     IDStructU   `xml:"ID"`
+	NoMore interface{} `xml:"NoMoreRequests,ommitempty"`
+}
 
 //IDStruct msg id
 type IDStruct struct {
 	Attr  string `xml:"SOAP-ENV:mustUnderstand,attr,ommitempty"`
+	Value string `xml:",chardata"`
+}
+type IDStructU struct {
+	Attr  string `xml:"mustUnderstand,attr,ommitempty"`
 	Value string `xml:",chardata"`
 }
 

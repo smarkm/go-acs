@@ -3,17 +3,19 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	//"github.com/coraldane/godom"
-	"github.com/jteeuwen/go-pkg-xmlx"
 	"strconv"
-	"strings"
+
+	//"github.com/coraldane/godom"
 	"time"
+
+	"github.com/beevik/etree"
 )
 
 //Inform tr069 inform (heartbeat)
 type Inform struct {
-	ID           string            `json:"id"`
-	Name         string            `json:"name"`
+	Header       HeaderStruct      `xml:"soap_env:Header"`
+	ID           string            `json:"id" xml:"cwmp:ID"`
+	Name         string            `json:"name" xml:"cwmp:Name"`
 	Manufacturer string            `json:"manufacturer"`
 	OUI          string            `json:"oui"`
 	ProductClass string            `json:"productClass"`
@@ -112,52 +114,66 @@ func (msg *Inform) CreateXML() []byte {
 }
 
 //Parse decode from xml
-func (msg *Inform) Parse(doc *xmlx.Document) {
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
-	deviceNode := doc.SelectNode("*", "DeviceId")
-	if len(strings.TrimSpace(deviceNode.String())) > 0 {
-		msg.Manufacturer = deviceNode.SelectNode("", "Manufacturer").GetValue()
-		msg.OUI = deviceNode.SelectNode("", "OUI").GetValue()
-		msg.ProductClass = deviceNode.SelectNode("", "ProductClass").GetValue()
-		msg.Sn = deviceNode.SelectNode("", "SerialNumber").GetValue()
-	}
-	informNode := doc.SelectNode("*", "Inform")
-	if len(strings.TrimSpace(informNode.String())) > 0 {
-		var err error
-		msg.CurrentTime = informNode.SelectNode("", "CurrentTime").GetValue()
-		msg.MaxEnvelopes, err = strconv.Atoi(informNode.SelectNode("", "MaxEnvelopes").GetValue())
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-		}
-		msg.RetryCount, err = strconv.Atoi(informNode.SelectNode("", "RetryCount").GetValue())
-		if err != nil {
-			fmt.Printf("error: %v\n", err)
-		}
-	}
+func (msg *Inform) Parse(body string) {
 
-	eventNode := doc.SelectNode("*", "Event")
-	if len(strings.TrimSpace(eventNode.String())) > 0 {
-		//msg.Events = make(map[string]string)
-		var code string
-		for _, event := range eventNode.Children {
-			if len(strings.TrimSpace(event.String())) > 0 {
-				code = event.SelectNode("", "EventCode").GetValue()
-				msg.Events[code] = event.SelectNode("", "CommandKey").GetValue()
-			}
+	doc := etree.NewDocument()
+	doc.ReadFromString(body)
+	inform := doc.SelectElement("Inform")
+	if inform != nil {
+		deviceId := inform.FindElement("DeviceId")
+		if deviceId != nil {
+			msg.Manufacturer = FindValue(deviceId, "Manufacturer")
+			msg.OUI = FindValue(deviceId, "OUI")
+			msg.ProductClass = FindValue(deviceId, "ProductClass")
+			msg.Sn = FindValue(deviceId, "SerialNumber")
 		}
 	}
+	fmt.Println(string(msg.CreateXML()))
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
+	// deviceNode := doc.SelectNode("*", "DeviceId")
+	// if len(strings.TrimSpace(deviceNode.String())) > 0 {
+	// 	msg.Manufacturer = deviceNode.SelectNode("", "Manufacturer").GetValue()
+	// 	msg.OUI = deviceNode.SelectNode("", "OUI").GetValue()
+	// 	msg.ProductClass = deviceNode.SelectNode("", "ProductClass").GetValue()
+	// 	msg.Sn = deviceNode.SelectNode("", "SerialNumber").GetValue()
+	// }
+	// informNode := doc.SelectNode("*", "Inform")
+	// if len(strings.TrimSpace(informNode.String())) > 0 {
+	// 	var err error
+	// 	msg.CurrentTime = informNode.SelectNode("", "CurrentTime").GetValue()
+	// 	msg.MaxEnvelopes, err = strconv.Atoi(informNode.SelectNode("", "MaxEnvelopes").GetValue())
+	// 	if err != nil {
+	// 		fmt.Printf("error: %v\n", err)
+	// 	}
+	// 	msg.RetryCount, err = strconv.Atoi(informNode.SelectNode("", "RetryCount").GetValue())
+	// 	if err != nil {
+	// 		fmt.Printf("error: %v\n", err)
+	// 	}
+	// }
 
-	paramsNode := doc.SelectNode("*", "ParameterList")
-	if len(strings.TrimSpace(paramsNode.String())) > 0 {
-		//msg.Params = make(map[string]string)
-		var name string
-		for _, param := range paramsNode.Children {
-			if len(strings.TrimSpace(param.String())) > 0 {
-				name = param.SelectNode("", "Name").GetValue()
-				msg.Params[name] = param.SelectNode("", "Value").GetValue()
-			}
-		}
-	}
+	// eventNode := doc.SelectNode("*", "Event")
+	// if len(strings.TrimSpace(eventNode.String())) > 0 {
+	// 	//msg.Events = make(map[string]string)
+	// 	var code string
+	// 	for _, event := range eventNode.Children {
+	// 		if len(strings.TrimSpace(event.String())) > 0 {
+	// 			code = event.SelectNode("", "EventCode").GetValue()
+	// 			msg.Events[code] = event.SelectNode("", "CommandKey").GetValue()
+	// 		}
+	// 	}
+	// }
+
+	// paramsNode := doc.SelectNode("*", "ParameterList")
+	// if len(strings.TrimSpace(paramsNode.String())) > 0 {
+	// 	//msg.Params = make(map[string]string)
+	// 	var name string
+	// 	for _, param := range paramsNode.Children {
+	// 		if len(strings.TrimSpace(param.String())) > 0 {
+	// 			name = param.SelectNode("", "Name").GetValue()
+	// 			msg.Params[name] = param.SelectNode("", "Value").GetValue()
+	// 		}
+	// 	}
+	// }
 }
 
 //IsEvent is a connect request or others

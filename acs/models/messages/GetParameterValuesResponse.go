@@ -3,9 +3,7 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jteeuwen/go-pkg-xmlx"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -75,22 +73,22 @@ func (msg *GetParameterValuesResponse) CreateXML() []byte {
 }
 
 //Parse decode from xml
-func (msg *GetParameterValuesResponse) Parse(doc *xmlx.Document) {
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
-	paramsNode := doc.SelectNode("*", "ParameterList")
-	if len(strings.TrimSpace(paramsNode.String())) > 0 {
-		params := make(map[string]string)
-		var name, value string
-		for _, param := range paramsNode.Children {
-			fmt.Println("param:", param)
+func (msg *GetParameterValuesResponse) Parse(doc *string) {
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
+	// paramsNode := doc.SelectNode("*", "ParameterList")
+	// if len(strings.TrimSpace(paramsNode.String())) > 0 {
+	// 	params := make(map[string]string)
+	// 	var name, value string
+	// 	for _, param := range paramsNode.Children {
+	// 		fmt.Println("param:", param)
 
-			if len(strings.TrimSpace(param.String())) > 0 {
-				name = param.SelectNode("", "Name").GetValue()
-				value = param.SelectNode("", "Value").GetValue()
-				params[name] = value
-			}
+	// 		if len(strings.TrimSpace(param.String())) > 0 {
+	// 			name = param.SelectNode("", "Name").GetValue()
+	// 			value = param.SelectNode("", "Value").GetValue()
+	// 			params[name] = value
+	// 		}
 
-		}
-		msg.Values = params
-	}
+	// 	}
+	// 	msg.Values = params
+	// }
 }

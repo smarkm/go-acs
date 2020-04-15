@@ -3,7 +3,6 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jteeuwen/go-pkg-xmlx"
 	"time"
 )
 
@@ -54,6 +53,6 @@ func (msg *RebootResponse) CreateXML() []byte {
 }
 
 //Parse decode from xml
-func (msg *RebootResponse) Parse(doc *xmlx.Document) {
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
+func (msg *RebootResponse) Parse(doc *string) {
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
 }

@@ -1,9 +1,5 @@
 package messages
 
-import (
-	"github.com/jteeuwen/go-pkg-xmlx"
-)
-
 //ValueChange value change
 type ValueChange struct {
 	Sn    string `json:"sn"`
@@ -26,6 +22,6 @@ func (msg *ValueChange) CreateXML() (xml []byte) {
 }
 
 //Parse decode from xml
-func (msg *ValueChange) Parse(doc *xmlx.Document) {
+func (msg *ValueChange) Parse(doc *string) {
 	//TODO
 }

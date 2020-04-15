@@ -3,9 +3,7 @@ package messages
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/jteeuwen/go-pkg-xmlx"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -72,20 +70,20 @@ func (msg *GetRPCMethodsResponse) CreateXML() []byte {
 }
 
 //Parse decode from xml
-func (msg *GetRPCMethodsResponse) Parse(doc *xmlx.Document) {
+func (msg *GetRPCMethodsResponse) Parse(doc *string) {
 
-	msg.ID = doc.SelectNode("*", "ID").GetValue()
+	// msg.ID = doc.SelectNode("*", "ID").GetValue()
 
-	methodList := doc.SelectNode("*", "MethodList")
-	if len(strings.TrimSpace(methodList.String())) > 0 {
-		var name string
-		var methods []string
-		for _, param := range methodList.Children {
-			if len(strings.TrimSpace(param.String())) > 0 {
-				name = param.GetValue()
-				methods = append(methods, name)
-			}
-		}
-		msg.Methods = methods
-	}
+	// methodList := doc.SelectNode("*", "MethodList")
+	// if len(strings.TrimSpace(methodList.String())) > 0 {
+	// 	var name string
+	// 	var methods []string
+	// 	for _, param := range methodList.Children {
+	// 		if len(strings.TrimSpace(param.String())) > 0 {
+	// 			name = param.GetValue()
+	// 			methods = append(methods, name)
+	// 		}
+	// 	}
+	// 	msg.Methods = methods
+	// }
 }
