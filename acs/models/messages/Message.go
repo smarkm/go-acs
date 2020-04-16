@@ -49,17 +49,17 @@ type Message interface {
 type Envelope struct {
 	XMLName   xml.Name    `xml:"soap_env:Envelope"`
 	XmlnsEnv  string      `xml:"xmlns:soap_env,attr"`
-	XmlnsEnc  string      `xml:"xmlns:SOAP-ENC,attr"`
+	XmlnsEnc  string      `xml:"xmlns:soap_enc,attr"`
 	XmlnsXsd  string      `xml:"xmlns:xsd,attr"`
 	XmlnsXsi  string      `xml:"xmlns:xsi,attr"`
 	XmlnsCwmp string      `xml:"xmlns:cwmp,attr"`
 	Header    interface{} `xml:"soap_env:Header"`
-	Body      interface{} `xml:"SOAP-ENV:Body"`
+	Body      interface{} `xml:"soap_env:Body"`
 }
 type EnvelopeU struct {
 	XMLName   xml.Name      `xml:"Envelope"`
 	XmlnsEnv  string        `xml:"soap_env,attr"`
-	XmlnsEnc  string        `xml:"SOAP-ENC,attr"`
+	XmlnsEnc  string        `xml:"soap_enc,attr"`
 	XmlnsXsd  string        `xml:"xsd,attr"`
 	XmlnsXsi  string        `xml:"xsi,attr"`
 	XmlnsCwmp string        `xml:"cwmp,attr"`

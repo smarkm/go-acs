@@ -7,8 +7,6 @@ import (
 
 	//"github.com/coraldane/godom"
 	"time"
-
-	"github.com/beevik/etree"
 )
 
 //Inform tr069 inform (heartbeat)
@@ -28,10 +26,16 @@ type Inform struct {
 }
 
 type informBodyStruct struct {
-	Body informStruct `xml:"cwmp:Inform"`
+	XMLName      xml.Name            `xml:"Inform"`
+	DeviceID     deviceIDStruct      `xml:"DeviceId"`
+	Event        EventStruct         `xml:"Event"`
+	MaxEnvelopes NodeStruct          `xml:"MaxEnvelopes"`
+	CurrentTime  NodeStruct          `xml:"CurrentTime"`
+	RetryCount   NodeStruct          `xml:"RetryCount"`
+	Params       ParameterListStruct `xml:"ParameterList"`
 }
-
-type informStruct struct {
+type informBodyStructU struct {
+	XMLName      xml.Name            `xml:"cwmp:Inform"`
 	DeviceID     deviceIDStruct      `xml:"DeviceId"`
 	Event        EventStruct         `xml:"Event"`
 	MaxEnvelopes NodeStruct          `xml:"MaxEnvelopes"`
@@ -103,8 +107,8 @@ func (msg *Inform) CreateXML() []byte {
 			Value: NodeStruct{Type: XsdString, Value: v}}
 		paramList.Params = append(paramList.Params, param)
 	}
-	info := informStruct{DeviceID: deviceID, Event: event, MaxEnvelopes: maxEnvelopes, CurrentTime: currentTime, RetryCount: retryCount, Params: paramList}
-	env.Body = informBodyStruct{info}
+	info := informBodyStructU{DeviceID: deviceID, Event: event, MaxEnvelopes: maxEnvelopes, CurrentTime: currentTime, RetryCount: retryCount, Params: paramList}
+	env.Body = info
 	output, err := xml.MarshalIndent(env, "  ", "    ")
 	//output, err := xml.Marshal(env)
 	if err != nil {
@@ -115,20 +119,26 @@ func (msg *Inform) CreateXML() []byte {
 
 //Parse decode from xml
 func (msg *Inform) Parse(body string) {
-
-	doc := etree.NewDocument()
-	doc.ReadFromString(body)
-	inform := doc.SelectElement("Inform")
-	if inform != nil {
-		deviceId := inform.FindElement("DeviceId")
-		if deviceId != nil {
-			msg.Manufacturer = FindValue(deviceId, "Manufacturer")
-			msg.OUI = FindValue(deviceId, "OUI")
-			msg.ProductClass = FindValue(deviceId, "ProductClass")
-			msg.Sn = FindValue(deviceId, "SerialNumber")
-		}
+	ibody := informBodyStruct{}
+	e := xml.Unmarshal([]byte(body), &ibody)
+	if e != nil {
+		println(e)
 	}
-	fmt.Println(string(msg.CreateXML()))
+	msg.Manufacturer = ibody.DeviceID.Manufacturer.Value
+	msg.OUI = ibody.DeviceID.OUI.Value
+	msg.ProductClass = ibody.DeviceID.ProductClass.Value
+	msg.Sn = ibody.DeviceID.SerialNumber.Value
+
+	msg.CurrentTime = ibody.CurrentTime.Value
+	msg.MaxEnvelopes, _ = strconv.Atoi(ibody.MaxEnvelopes.Value)
+	msg.RetryCount, _ = strconv.Atoi(ibody.RetryCount.Value)
+	for _, event := range ibody.Event.Events {
+		msg.Events[event.EventCode.Value] = event.CommandKey
+	}
+	for _, param := range ibody.Params.Params {
+		msg.Params[param.Name.Value] = param.Value.Value
+	}
+
 	// msg.ID = doc.SelectNode("*", "ID").GetValue()
 	// deviceNode := doc.SelectNode("*", "DeviceId")
 	// if len(strings.TrimSpace(deviceNode.String())) > 0 {

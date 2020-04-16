@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"go-acs/acs/models/messages"
 	"io"
-	"log"
 	"net/http"
+	"os"
 	"strings"
 	"testing"
+	"text/scanner"
+	"time"
 )
 
 func TestInform(t *testing.T) {
@@ -23,19 +25,42 @@ func TestInform(t *testing.T) {
 	fmt.Println(e)
 }
 
+func TestReboot(t *testing.T) {
+
+}
+
 func TestACS(t *testing.T) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		line, _ := bufio.NewReader(r.Body).ReadBytes(io.SeekEnd)
+		fmt.Printf("line: %s\n", line)
+		if r.ContentLength == 0 {
+			//reboot := messages.Reboot{}
+			//w.Write(reboot.CreateXML())
+			return
+		}
+
 		envelope := messages.EnvelopeU{}
 		err := xml.Unmarshal(line, &envelope)
-		//fmt.Println(envelope.Body)
-		if strings.Contains(envelope.Body.Data, "cwmp:Inform") {
-			inform := messages.Inform{}
-			inform.Parse(envelope.Body.Data)
+		if err != nil {
+			t.Error(err)
 		}
-		fmt.Println(err)
+		if strings.Contains(envelope.Body.Data, "cwmp:Inform") {
+			inform := messages.NewInform()
+			inform.Parse(envelope.Body.Data)
+			informResponse := messages.InformResponse{MaxEnvelopes: 1, ID: "FFFFFF123456"}
+			w.Write(informResponse.CreateXML())
+			fmt.Printf("%s\n", informResponse.CreateXML())
+		}
 	})
 
-	log.Fatal(http.ListenAndServe(":7547", nil))
+	go http.ListenAndServe(":7547", nil)
+	fmt.Println("================")
+	var s scanner.Scanner
+	s.Init(os.Stdin)
+	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
+		fmt.Printf("%s: %s\n", s.Position, s.TokenText())
+	}
+	time.Sleep(10000 * time.Second)
+
 }
